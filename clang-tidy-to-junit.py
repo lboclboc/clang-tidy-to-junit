@@ -25,6 +25,8 @@ class ClangTidyConverter:
     error_regex = re.compile(
         r"^([\w\/\.\-\ ]+):(\d+):(\d+): (.+) (\[[\w\-,\.]+\])$")
 
+    start_regex = re.compile(r":\d+:\d+:")
+
     # This identifies the main error line (it has a [the-warning-type] at the end)
     # We only create a new error when we encounter one of those.
     main_error_identifier = re.compile(r'\[[\w\-,\.]+\]$')
@@ -81,7 +83,7 @@ class ClangTidyConverter:
         current_error = []
         for line in input_file:
             # If the line starts with a `/`, it is a line about a file.
-            if line[0] == '/':
+            if self.start_regex.search(line):
                 # Look if it is the start of a error
                 if self.main_error_identifier.search(line, re.M):
                     # If so, process any `current_error` we might have
